@@ -1,0 +1,10 @@
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const {match,normalize} = require('../src/engine.js');
+test('allowlist overrides blocked subreddit',()=>assert.equal(match({subreddit:'r/news'},{subreddits:['news'],allowedSubreddits:['r/news']}),null));
+test('flair matching ignores case',()=>assert.equal(match({flair:'MEME'},{flairs:['meme']}),'Blocked flair'));
+test('subdomains are filtered',()=>assert.equal(match({url:'https://a.example.com/post'},{domains:['example.com']}),'Blocked domain'));
+test('domain boundaries prevent false positives',()=>assert.equal(match({url:'https://notexample.com/post'},{domains:['example.com']}),null));
+test('crosspost filter',()=>assert.equal(match({crosspost:true},{hideCrossposts:true}),'Crosspost'));
+test('nsfw filter',()=>assert.equal(match({nsfw:true},{hideNSFW:true}),'NSFW post'));
+test('normalization clamps invalid mode',()=>assert.equal(normalize({mode:'unknown'}).mode,'hide'));
